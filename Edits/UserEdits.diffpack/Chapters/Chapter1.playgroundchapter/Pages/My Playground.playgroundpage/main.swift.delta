@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Diffs</key>
+	<array>
+		<dict>
+			<key>ModifiedContent</key>
+			<string>import Foundation
+
+let content = load(file: "input")!
+
+let splitInput = content.components(separatedBy: "\n\n")
+    .map {
+        $0.components(separatedBy: "\n").compactMap {
+            Int($0)
+        }
+    }
+
+var sumArray: [Int] = []
+
+for array in splitInput {
+    let newInt = array.sum
+    sumArray.append(newInt)
+}
+
+let maximum = sumArray.max()
+
+print(maximum)
+
+func threeTop() -&gt; Int {
+    let first = sumArray.first(where: { $0 == maximum })!
+    
+    let secondSumArray = sumArray.filter({ $0 != maximum})
+    
+    let second = secondSumArray.max()
+    
+    let third = secondSumArray.filter({ $0 != second }).max()!
+    
+    let sum = first + second! + third
+    
+    return sum
+}  
+
+print(threeTop())
+</string>
+			<key>ModifiedRange</key>
+			<string>{0, 714}</string>
+			<key>OriginalContent</key>
+			<string>
+</string>
+			<key>OriginalRange</key>
+			<string>{0, 1}</string>
+		</dict>
+	</array>
+	<key>FormatVersion</key>
+	<integer>2</integer>
+</dict>
+</plist>
