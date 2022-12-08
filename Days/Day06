@@ -1,0 +1,26 @@
+
+import Foundation
+
+let input = load(file: "input06")!
+
+let charAr: [Character] = input.map { $0 }.dropLast()
+
+
+
+print(charAr.count)
+
+func findMarker(length: Int) -> Int {
+    var start = 0
+    for i in 0...(charAr.count - length - 1) {
+        let sequence = charAr[i ... i+length-1]
+        if Set(sequence).count == length {
+            start = i + length
+            break
+            }
+    }
+    return start
+}
+
+print(findMarker(length: 4))
+
+print(findMarker(length: 14))
