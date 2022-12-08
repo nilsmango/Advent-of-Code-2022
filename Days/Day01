@@ -1,0 +1,37 @@
+import Foundation
+
+let content = load(file: "input")!
+
+let splitInput = content.components(separatedBy: "\n\n")
+    .map {
+        $0.components(separatedBy: "\n").compactMap {
+            Int($0)
+        }
+    }
+
+var sumArray: [Int] = []
+
+for array in splitInput {
+    let newInt = array.sum
+    sumArray.append(newInt)
+}
+
+let maximum = sumArray.max()
+
+print(maximum)
+
+func threeTop() -> Int {
+    let first = sumArray.first(where: { $0 == maximum })!
+    
+    let secondSumArray = sumArray.filter({ $0 != maximum})
+    
+    let second = secondSumArray.max()
+    
+    let third = secondSumArray.filter({ $0 != second }).max()!
+    
+    let sum = first + second! + third
+    
+    return sum
+}  
+
+print(threeTop())
