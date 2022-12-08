@@ -1,0 +1,52 @@
+
+import Foundation
+
+// Here we go.
+
+let input = load(file: "input04")
+
+let pairArray = input!.components(separatedBy: .newlines).dropLast()
+
+
+func makeArrayOfRange(from range: String) -> [Int] {
+    let fullRange = range.split(separator: "-")
+    let rangeLow = Int(fullRange.first!)!
+    let rangeHigh = Int(fullRange.last!)!
+    
+    let resultingArray = Array(rangeLow...rangeHigh)
+    
+    return resultingArray
+}
+// part 01
+var countingSubsets = 0
+// part 02
+var countingOverlaps = 0
+for pair in pairArray {
+    let pairs = pair.split(separator: ",")
+    let pairRange1 = makeArrayOfRange(from: String(pairs[0]))
+    let pairRange2 = makeArrayOfRange(from: String(pairs[1]))
+    
+    if pairRange1.count >= pairRange2.count {
+        if Set(pairRange2).isSubset(of: Set(pairRange1)) {
+            countingSubsets += 1
+        }
+    } else if pairRange1.count < pairRange2.count {
+        if Set(pairRange1).isSubset(of: Set(pairRange2)) {
+            countingSubsets += 1
+        }
+    }
+    
+    for sector in pairRange1 {
+        if pairRange2.contains(sector) {
+            countingOverlaps += 1
+            break
+        }
+        
+    }
+    
+}
+
+print(countingSubsets)
+print(countingOverlaps)
+
+
