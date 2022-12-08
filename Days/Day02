@@ -1,0 +1,43 @@
+import Foundation
+
+let input = load(file: "input02")
+
+// A, X for Rock, B, Y for Paper, and C, Z for Scissors
+// A, X gets 1, B, Y gets 2, and C, Z gets 3
+// lost gets 0, draw gets 3, win gets 6
+
+let roundsArray = input?.components(separatedBy: .newlines)
+
+let testArray = ["A Y", "B X", "C Z"]
+
+let countDict = ["A X":4, "A Y":8, "A Z":3, "B X":1, "B Y":5, "B Z":9, "C X":7, "C Y": 2, "C Z":6]
+
+
+func countingCases(dict: [String:Int]) -> Int {
+    var score = 0
+    for pair in dict {
+        var keyCount = 0
+        for round in roundsArray! {
+            if round == pair.key {
+                keyCount += 1
+            }
+        }
+        let keyScore = keyCount * pair.value
+        score += keyScore
+    }
+    return score
+}
+
+// part 01
+print(countingCases(dict: countDict))
+
+// part 02 (fuck)
+
+// A, X for Rock, B, Y for Paper, and C, Z for Scissors
+// A, X gets 1, B, Y gets 2, and C, Z gets 3
+// X lose, Y draw, Z win
+// lost gets 0, draw gets 3, win gets 6
+
+let countDict2 = ["A X":3, "A Y":4, "A Z":8, "B X":1, "B Y":5, "B Z":9, "C X":2, "C Y": 6, "C Z":7]
+
+print(countingCases(dict: countDict2))
