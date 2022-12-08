@@ -1,0 +1,189 @@
+
+import Foundation
+
+
+extension Character {
+    var makeInt: Int {
+        return Int(String(self))!
+    }
+}
+
+let input = load(file: "input08")
+
+// check if tree height is covered from left, right, up, down
+// count how many are visible from the outside, all the trees on the edge are visible
+
+let treeArray = input!.components(separatedBy: .newlines).dropLast()
+
+var gridArray = [[Int]]()
+
+for line in treeArray {
+    var newAr = [Int]()
+    for char in line {
+        newAr.append(char.makeInt)
+    }
+    gridArray.append(newAr)
+}
+
+var treeCount = 0
+
+for (rowIndex, array) in gridArray.enumerated() {
+    for (colmIndex, height) in array.enumerated() {
+        
+        if rowIndex == 0 || rowIndex == gridArray.endIndex - 1 || colmIndex == 0 || colmIndex == array.endIndex - 1 {
+            treeCount += 1
+        } else {
+            // look up the sizes around from index: 0 to endIndex - 1
+            var fromLeft = true
+            var fromRight = true
+            var fromTop = true
+            var frombottom = true
+            // look left
+            for arrayIndex in 0...colmIndex-1 {
+                if height <= array[arrayIndex] {
+                    fromLeft = false
+                    break
+                } else {
+                    fromLeft = true
+                    
+                    
+                }
+            }
+
+            // look right
+            for arrayIndex in colmIndex+1...array.endIndex-1 {
+                if height <= array[arrayIndex] {
+                    fromRight = false
+                    break
+                } else {
+                    fromRight = true
+                    
+                }
+            }
+
+            // look up
+            for arrayIndex in 0...rowIndex-1 {
+                if height <= gridArray[arrayIndex][colmIndex] {
+                    fromTop = false
+                    break
+                } else {
+                    fromTop = true
+                    
+                }
+            }
+
+            // look down
+            for arrayIndex in rowIndex+1...gridArray.endIndex-1 {
+                if height <= gridArray[arrayIndex][colmIndex] {
+                    frombottom = false
+                    break
+                } else {
+                    frombottom = true
+                    
+                }
+            }
+            
+            if frombottom || fromTop || fromLeft || fromRight {
+                treeCount += 1
+            }
+            
+        }
+    }
+}
+
+
+
+// part 01
+print(treeCount)
+
+
+// part 02
+
+var scenicScoreArray = [Int]()
+
+for (rowIndex, array) in gridArray.enumerated() {
+    for (colmIndex, height) in array.enumerated() {
+        // look up the sizes around from index: 0 to endIndex - 1
+        var lookingLeft = 0
+        var lookingRight = 0
+        var lookingUp = 0
+        var lookingDown = 0
+        
+        // look left
+        // if is on the left, make it 0
+        if colmIndex == 0 {
+            lookingLeft = 0
+        } else {
+            for arrayIndex in 0...colmIndex-1 {
+                let max = colmIndex-1
+                let calculatedIndex = max - arrayIndex
+                
+                if height <= array[calculatedIndex] {
+                    lookingLeft += 1
+                    break
+                } else {
+                    lookingLeft += 1
+                    
+                }
+            }
+        }
+        
+        // look right, if is most right make it 0
+        if colmIndex == array.endIndex-1 {
+            lookingRight = 0
+        } else {
+            for arrayIndex in colmIndex+1...array.endIndex-1 {
+                if height <= array[arrayIndex] {
+                    lookingRight += 1
+                    break
+                } else {
+                    lookingRight += 1
+                    
+                }
+            }
+        }
+            
+            
+            // look up, if upper most line make it 0
+        if rowIndex == 0 {
+            lookingUp = 0
+        } else {
+            for arrayIndex in 0...rowIndex-1 {
+                
+                let max = rowIndex-1
+                let calculatedIndex = max - arrayIndex
+                
+                if height <= gridArray[calculatedIndex][colmIndex] {
+                    lookingUp += 1
+                    break
+                } else {
+                    lookingUp += 1
+                    
+                }
+            }
+        }
+            
+            
+            // look down
+        if rowIndex == gridArray.endIndex-1 {
+            lookingDown = 0
+        } else {
+            for arrayIndex in rowIndex+1...gridArray.endIndex-1 {
+                if height <= gridArray[arrayIndex][colmIndex] {
+                    lookingDown += 1
+                    break
+                } else {
+                    lookingDown += 1
+                    
+                }
+            }
+            
+        }
+        
+        let scenicScore = lookingUp * lookingDown * lookingLeft * lookingRight
+            
+        scenicScoreArray.append(scenicScore)
+    }
+}
+
+print(scenicScoreArray.max())
