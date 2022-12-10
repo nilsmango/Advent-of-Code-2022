@@ -1,0 +1,172 @@
+
+import Foundation
+
+// It might not be pretty, but it seems to be pretty fast?
+
+
+let sample2 = """
+    R 5
+    U 8
+    L 8
+    D 3
+    R 17
+    D 10
+    L 25
+    U 20
+    """
+
+let input = load(file: "input09")
+let instArr = input!.components(separatedBy: .newlines).dropLast()
+//let instArr = sample2.components(separatedBy: .newlines)
+
+
+struct Coordinates {
+    var y: Int
+    var x: Int
+}
+
+let sizeOfField = 1000
+
+var lastTailArr = Array(repeating: Array(repeating: 0, count: sizeOfField), count: sizeOfField)
+
+var startPoint = Coordinates(y: sizeOfField / 2, x: sizeOfField / 2)
+
+
+func moveTail(head: Coordinates, tail: Coordinates) -> Coordinates {
+    let dif = Coordinates(y: head.y - tail.y, x: head.x - tail.x)
+    
+    // holy shit
+    if dif.x == 2 && dif.y == 2 {
+        return Coordinates(y: head.y - 1, x: head.x - 1)
+    } else if dif.x == -2 && dif.y == -2 {
+        return Coordinates(y: head.y + 1, x: head.x + 1)
+    } else if dif.x == -2 && dif.y == 2 {
+        return Coordinates(y: head.y - 1, x: head.x + 1)
+    } else if dif.x == 2 && dif.y == -2 {
+        return Coordinates(y: head.y + 1, x: head.x - 1)
+        
+    } else {
+        
+        switch dif.x {
+        case 2:
+            return Coordinates(y: head.y, x: head.x - 1) 
+            
+        case -2:
+            return Coordinates(y: head.y, x: head.x + 1)
+            
+        default:
+            
+            switch dif.y {
+            
+            case 2:
+                return Coordinates(y: head.y - 1, x: head.x) 
+                
+            case -2:
+                return Coordinates(y: head.y + 1, x: head.x) 
+                
+            default:
+                return tail 
+            }
+        }
+    }
+    
+}
+
+let numberOfTails = 9
+
+var tailsArray = Array(repeating: startPoint, count: numberOfTails)
+
+var head = startPoint
+
+for line in instArr {
+    let direction = line.first!
+    let steps = Int(line.split(separator: " ").last!)!
+    
+    
+    switch direction {
+    case "R":
+        for step in 1...steps {
+            head.x += 1
+            
+            for currentTail in 0...numberOfTails - 1 {
+                let newHead: Coordinates
+                if currentTail == 0 {
+                    newHead = head
+                } else {
+                    newHead = tailsArray[currentTail - 1]
+                }
+                    tailsArray[currentTail] = moveTail(head: newHead, tail: tailsArray[currentTail])
+                }
+            lastTailArr[tailsArray[numberOfTails - 1].y][tailsArray[numberOfTails - 1].x] = 1
+            
+        }
+            
+            
+    case "L":
+        for step in 1...steps {
+            head.x -= 1
+            
+            for currentTail in 0...numberOfTails - 1 {
+                let newHead: Coordinates
+                if currentTail == 0 {
+                    newHead = head
+                } else {
+                    newHead = tailsArray[currentTail - 1]
+                }
+                tailsArray[currentTail] = moveTail(head: newHead, tail: tailsArray[currentTail])
+            }
+            lastTailArr[tailsArray[numberOfTails-1].y][tailsArray[numberOfTails-1].x] = 1
+        }
+        
+    case "U":
+        for step in 1...steps {
+            head.y += 1
+            
+            for currentTail in 0...numberOfTails - 1 {
+                let newHead: Coordinates
+                if currentTail == 0 {
+                    newHead = head
+                } else {
+                    newHead = tailsArray[currentTail - 1]
+                }
+                tailsArray[currentTail] = moveTail(head: newHead, tail: tailsArray[currentTail])
+            }
+            lastTailArr[tailsArray[numberOfTails - 1].y][tailsArray[numberOfTails - 1].x] = 1
+            
+        }
+        
+    case "D":
+        for step in 1...steps {
+            head.y -= 1
+            
+            for currentTail in 0...numberOfTails - 1 {
+                let newHead: Coordinates
+                if currentTail == 0 {
+                    newHead = head
+                } else {
+                    newHead = tailsArray[currentTail - 1]
+                }
+                tailsArray[currentTail] = moveTail(head: newHead, tail: tailsArray[currentTail])
+            }
+            lastTailArr[tailsArray[numberOfTails - 1].y][tailsArray[numberOfTails - 1].x] = 1
+            
+            
+        }
+        
+    default:
+        continue 
+    }
+    
+}
+
+var reducedArr = [Int]()
+
+for array in lastTailArr {
+    let red = array.reduce(0, +)
+    reducedArr.append(red)
+}
+
+let result02 = reducedArr.reduce(0, +)
+
+
+print(result02)
