@@ -1,0 +1,115 @@
+
+import Foundation
+
+// Array Array machen, y, x. - arr[y][x] 
+
+let sample = """
+    R 4
+    U 4
+    L 3
+    D 1
+    R 4
+    D 1
+    L 5
+    R 2
+    """
+
+let input = load(file: "input09")
+//let instArr = input!.components(separatedBy: .newlines).dropLast()
+let instArr = sample.components(separatedBy: .newlines)
+
+// first calculate how big it has to be? + where are the center coordinates?
+// nope, let's just make it huge and start in the center 2000 steps, let's make it 1'000 x 1'000 - center: 500 500
+
+
+
+
+var tailArr = Array(repeating: Array(repeating: 0, count: 1000), count: 1000)
+
+var tailY = 500
+var tailX = 500
+var headY = 500
+var headX = 500
+
+
+func isNotTouching () -> Bool {
+    if (-1...1).contains(tailX - headX) && (-1...1).contains(tailY - headY) {
+        return false
+    } else {
+        return true
+    }
+}
+
+for line in instArr {
+    let direction = line.first!
+    let steps = Int(line.split(separator: " ").last!)!
+    // got me with the start place!
+    
+    if line == instArr.first! {
+        tailArr[tailY][tailX] = 1
+    }
+    
+    switch direction {
+    case "R":
+        for step in 1...steps {
+            headX += 1
+            if isNotTouching() {
+                tailY = headY
+                tailX = headX - 1
+                tailArr[tailY][tailX] = 1
+            }
+            
+        }
+    case "L":
+        for step in 1...steps {
+            headX -= 1
+            if isNotTouching() {
+                tailY = headY
+                tailX = headX + 1
+                tailArr[tailY][tailX] = 1
+            }
+            
+        }
+        
+    case "U":
+        for step in 1...steps {
+            headY += 1
+            if isNotTouching() {
+                tailX = headX
+                tailY = headY - 1
+                tailArr[tailY][tailX] = 1
+            }
+            
+        }
+        
+    case "D":
+        for step in 1...steps {
+            headY -= 1
+            if isNotTouching() {
+                tailX = headX
+                tailY = headY + 1
+                tailArr[tailY][tailX] = 1
+            }
+            
+        }
+        
+    default:
+        continue 
+    }
+    
+}
+
+var reducedArr = [Int]()
+
+for array in tailArr {
+    let red = array.reduce(0, +)
+    reducedArr.append(red)
+}
+
+let result01 = reducedArr.reduce(0, +)
+
+
+print(result01)
+
+
+
