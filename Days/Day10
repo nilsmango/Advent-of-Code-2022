@@ -1,0 +1,216 @@
+
+import Foundation
+
+
+let sample1 = """
+    addx 15
+    addx -11
+    addx 6
+    addx -3
+    addx 5
+    addx -1
+    addx -8
+    addx 13
+    addx 4
+    noop
+    addx -1
+    addx 5
+    addx -1
+    addx 5
+    addx -1
+    addx 5
+    addx -1
+    addx 5
+    addx -1
+    addx -35
+    addx 1
+    addx 24
+    addx -19
+    addx 1
+    addx 16
+    addx -11
+    noop
+    noop
+    addx 21
+    addx -15
+    noop
+    noop
+    addx -3
+    addx 9
+    addx 1
+    addx -3
+    addx 8
+    addx 1
+    addx 5
+    noop
+    noop
+    noop
+    noop
+    noop
+    addx -36
+    noop
+    addx 1
+    addx 7
+    noop
+    noop
+    noop
+    addx 2
+    addx 6
+    noop
+    noop
+    noop
+    noop
+    noop
+    addx 1
+    noop
+    noop
+    addx 7
+    addx 1
+    noop
+    addx -13
+    addx 13
+    addx 7
+    noop
+    addx 1
+    addx -33
+    noop
+    noop
+    noop
+    addx 2
+    noop
+    noop
+    noop
+    addx 8
+    noop
+    addx -1
+    addx 2
+    addx 1
+    noop
+    addx 17
+    addx -9
+    addx 1
+    addx 1
+    addx -3
+    addx 11
+    noop
+    noop
+    addx 1
+    noop
+    addx 1
+    noop
+    noop
+    addx -13
+    addx -19
+    addx 1
+    addx 3
+    addx 26
+    addx -30
+    addx 12
+    addx -1
+    addx 3
+    addx 1
+    noop
+    noop
+    noop
+    addx -9
+    addx 18
+    addx 1
+    addx 2
+    noop
+    noop
+    addx 9
+    noop
+    noop
+    noop
+    addx -1
+    addx 2
+    addx -37
+    addx 1
+    addx 3
+    noop
+    addx 15
+    addx -21
+    addx 22
+    addx -6
+    addx 1
+    noop
+    addx 2
+    addx 1
+    noop
+    addx -10
+    noop
+    noop
+    addx 20
+    addx 1
+    addx 2
+    addx 2
+    addx -6
+    addx -11
+    noop
+    noop
+    noop
+    """
+
+let input = load(file: "input10")
+let instArr = input!.components(separatedBy: .newlines).dropLast()
+//let instArr = sample1.components(separatedBy: .newlines)
+
+var cycleArr = [Int]()
+var registerX = 1
+let noop = 1
+let addx = 2
+
+for line in instArr {
+    if line.prefix(4) == "noop" {
+        for cycle in 1...noop {
+            cycleArr.append(registerX)
+        }
+        } else {
+        let number = Int(line.split(separator: " ").last!)!
+        for cycle in 1...addx {
+            cycleArr.append(registerX)
+        }
+        registerX += number
+        }
+}
+
+var signalStrength = Int()
+
+for signal in stride(from: 20, to: 221, by: 40) {
+    signalStrength += cycleArr[signal - 1] * signal
+}
+
+// part 01
+print(signalStrength)
+
+
+
+// part 02
+
+var displayArr = String()
+var crtPos = 0
+
+for (index, cycle) in cycleArr.enumerated() {
+    
+    let spritePos = cycle
+    
+    let spritePosRange = (spritePos - 1)...(spritePos + 1)
+    
+    
+    
+    if spritePosRange.contains(crtPos) {
+        displayArr.append("#")
+    } else {
+        displayArr.append(".")
+    }
+    if (index + 1).isMultiple(of: 40) {
+        displayArr.append("\n")
+    }
+    
+    crtPos += 1
+    
+    if crtPos >= 40 {
+        crtPos = 0
+    }
+}
+print(displayArr)
