@@ -1,0 +1,196 @@
+import Foundation
+
+
+// doesn't work because I couldn't get bigInt package to load inside playground...
+
+
+// monkeys be like
+let sample = """
+Monkey 0:
+Starting items: 79, 98
+Operation: new = old * 19
+Test: divisible by 23
+If true: throw to monkey 2
+If false: throw to monkey 3
+
+Monkey 1:
+Starting items: 54, 65, 75, 74
+Operation: new = old + 6
+Test: divisible by 19
+If true: throw to monkey 2
+If false: throw to monkey 0
+
+Monkey 2:
+Starting items: 79, 60, 97
+Operation: new = old * old
+Test: divisible by 13
+If true: throw to monkey 1
+If false: throw to monkey 3
+
+Monkey 3:
+Starting items: 74
+Operation: new = old + 3
+Test: divisible by 17
+If true: throw to monkey 0
+If false: throw to monkey 1
+"""
+
+let input = load(file: "input11")
+
+let allMonkeys = input!.components(separatedBy: "\n\n")
+
+
+struct Monkey {
+    var items: [Int]
+    var operation: String
+    var test: Int
+    var ifTrue: Int
+    var ifFalse: Int
+    var inspectNumber: Int
+}
+
+
+
+var monkeys = [Monkey]()
+
+
+for monkey in allMonkeys {
+    let monkArr = monkey.components(separatedBy: .newlines)
+    let itemString = monkArr[1].components(separatedBy: "Starting items: ").last!
+    let itemStringArr = itemString.components(separatedBy: ", ")
+    let items = itemStringArr.map { Int($0)! }
+    let operation = monkArr[2].split(separator: " ",maxSplits: 1).last!
+    let test = Int(monkArr[3].split(separator: " ").last!)
+    let ifTrue = Int(monkArr[4].split(separator: " ").last!)
+    let ifFalse = Int(monkArr[5].split(separator: " ").last!)
+    
+    monkeys.append(Monkey(items: items, operation: String(operation), test: test!, ifTrue: ifTrue!, ifFalse: ifFalse!, inspectNumber: 0))
+}
+
+
+
+// let's play
+
+func itemCalculator(monkey: Monkey) -> Int {
+    let arr = monkey.operation.components(separatedBy: " ")
+    let second = arr.last
+    let count = arr.count
+    let oper = String(arr[3])
+    let item = monkey.items.first!
+    var new = Int()
+    
+    if second == "old" {
+        let number = item
+        switch oper {
+        case "+":
+            new = item + number
+            
+        case "*":
+            new = item * number
+            
+        default:
+            Error.self
+        }
+    } else {
+        let number = Int(arr.last!)!
+        switch oper {
+        case "+":
+            new = item + number
+            return new
+        case "*":
+            new = item * number
+            
+        default:
+            Error.self
+        }
+    }
+    return new
+    
+}
+
+let monkeysNumber = monkeys.count
+
+// let's calculate the Monkeys Test LCM
+
+func gcd(_ m: Int, _ n: Int) -> Int {
+    var a = 0
+    var b = max(m, n)
+    var r = min(m, n)
+    
+    while r != 0 {
+        a = b
+        b = r
+        r = a % b
+    }
+    return b
+}
+
+func lcm(_ m: Int, _ n: Int) -> Int {
+    return m*n / gcd(m, n)
+}
+
+let monkeyTests = monkeys.map( { $0.test } ).sorted(by: <)
+print(monkeyTests)
+
+var monkeysLCM = Int()
+
+for index in 0..<monkeysNumber {
+    if index == 0 {
+        monkeysLCM = lcm(monkeyTests[index], monkeyTests[index + 1])
+    }
+    else {
+        monkeysLCM = lcm(monkeyTests[index], monkeysLCM)
+    }
+    
+}
+
+func keepIntInCheck(with item: Int) -> Int {
+    return item % monkeysLCM
+} 
+
+
+print(monkeysLCM)
+
+for round in 1...10000 {
+    for monkey in 0..<monkeysNumber {
+        
+        let itemCount = monkeys[monkey].items.count
+        
+        if monkeys[monkey].items.isEmpty == false {
+            
+            for plays in 1...itemCount {
+                
+                let worryLevel = itemCalculator(monkey: monkeys[monkey])
+                
+                let currentWorry = keepIntInCheck(with: worryLevel)
+                
+                let test = currentWorry.isMultiple(of: monkeys[monkey].test)
+                
+                if test {
+                    monkeys[monkeys[monkey].ifTrue].items.append(currentWorry)
+                } else {
+                    monkeys[monkeys[monkey].ifFalse].items.append(currentWorry)
+                }
+                monkeys[monkey].items.removeFirst()
+                monkeys[monkey].inspectNumber += 1
+            }
+        }
+    }
+}
+
+var inspectMap = [Int]()
+
+
+for monkey in monkeys {
+    inspectMap.append(monkey.inspectNumber)
+}
+
+
+inspectMap.sort(by: >)
+
+print(inspectMap)
+
+let monkeyBusiness = inspectMap[0] * inspectMap[1]
+
+print(monkeyBusiness)
+
