@@ -1,0 +1,206 @@
+import Foundation
+
+let input = load(file: "input12")
+
+let sample = """
+    Sabqponm
+    abcryxxl
+    accszExk
+    acctuvwj
+    abdefghi
+    """
+
+//let lines = sampl!.components(separatedBy: .newlines)
+
+let lines = input!.components(separatedBy: .newlines)
+
+
+
+var terrain = [[Int]]()
+
+for line in lines {
+    var arr = [Int]()
+    for char in line {
+        
+        arr.append(Int(Unicode.Scalar(String(char))!.value))
+        
+    }
+    terrain.append(arr)
+}
+
+
+terrain = terrain.dropLast()
+
+
+print(terrain)
+
+let startCharVal = Unicode.Scalar("S").value
+let endCharVal = Unicode.Scalar("E").value
+let yCharVal = Unicode.Scalar("y").value
+let zCharVal = Unicode.Scalar("z").value
+
+
+struct Point: Equatable {
+    let x: Int
+    let y: Int
+    let height: Int
+}
+
+
+func findPoint(firstIndex: Int, secondIndex: Int) -> Point {
+    let realY = terrain.count - 1 - firstIndex
+    return Point(x: secondIndex, y: realY, height: terrain[firstIndex][secondIndex])
+} 
+
+func findIndexOfPoint(x: Int, y: Int) ->(first: Int, second: Int) {
+    let first = terrain.count - 1 - y
+    let second = x
+    return (first, second)
+}    
+
+
+var startPointFirstIndex = 0
+var startPointSecondIndex = 0
+var endPointFirstIndex = 0
+var endPointSecondIndex = 0
+
+// find indexes of start and end points
+for (firstindex, line) in terrain.enumerated() {
+    
+    if line.contains(83) {
+        startPointFirstIndex = firstindex
+        startPointSecondIndex = line.firstIndex(of: 83)!
+    }
+    
+    if line.contains(69) {
+            endPointFirstIndex = firstindex
+            endPointSecondIndex = line.firstIndex(of: 69)!
+        }
+    }
+
+
+
+let startPoint = findPoint(firstIndex: startPointFirstIndex, secondIndex: startPointSecondIndex)
+let endPoint = findPoint(firstIndex: endPointFirstIndex, secondIndex: endPointSecondIndex)
+
+// Endpoints of the grid
+let xEndPoint = terrain[0].count
+let yEndPoint = terrain.count
+
+// make startPoint height of a
+let editedStartPoint = Point(x: startPoint.x, y: startPoint.y, height: 97)
+
+var allRoutes = [[editedStartPoint]]
+
+var visitedPoints = [startPoint]
+
+var touchDown = false
+
+
+while touchDown == false {
+    
+    for route in allRoutes {
+        
+        let currentPoint = route.last!
+        
+        // north 
+        if currentPoint.y + 1 < yEndPoint {
+            let indexes = findIndexOfPoint(x: currentPoint.x, y: currentPoint.y + 1)
+            let newPoint = Point(x: currentPoint.x, y: currentPoint.y + 1, height: terrain[indexes.first][indexes.second])
+            // check if point was visited before by this route
+            if visitedPoints.contains(newPoint) == false {
+                // check if allowed step
+                let diff = currentPoint.height - newPoint.height
+                if ( diff >= -1 && diff < 30 ) || diff == 52 || diff == 53 {
+                    var currentRoute = route
+                    currentRoute.append(newPoint)
+                    allRoutes.append(currentRoute)
+                    
+                    if newPoint == endPoint {
+                        touchDown = true
+                    }
+                    visitedPoints.append(newPoint)
+                }
+            }
+        }
+        
+        // south
+        if currentPoint.y - 1 >= 0 {
+            let indexes = findIndexOfPoint(x: currentPoint.x, y: currentPoint.y - 1)
+            let newPoint = Point(x: currentPoint.x, y: currentPoint.y - 1, height: terrain[indexes.first][indexes.second])
+            // check if point was visited before by this route
+            if visitedPoints.contains(newPoint) == false  {
+                // check if allowed step
+                let diff = currentPoint.height - newPoint.height
+                if ( diff >= -1 && diff < 30 ) || diff == 52 || diff == 53  {
+                    var currentRoute = route
+                    currentRoute.append(newPoint)
+                    allRoutes.append(currentRoute)
+                    
+                    if newPoint == endPoint {
+                                            touchDown = true
+                                        }
+                    visitedPoints.append(newPoint)
+                }
+            }
+        }
+        
+        // east
+        if currentPoint.x + 1 < xEndPoint {
+            let indexes = findIndexOfPoint(x: currentPoint.x + 1, y: currentPoint.y)
+            let newPoint = Point(x: currentPoint.x + 1, y: currentPoint.y, height: terrain[indexes.first][indexes.second])
+            // check if point was visited before
+            if visitedPoints.contains(newPoint) == false  {
+                // check if allowed step
+                let diff = currentPoint.height - newPoint.height
+                if ( diff >= -1 && diff < 30 ) || diff == 52 || diff == 53  {
+                    var currentRoute = route
+                    currentRoute.append(newPoint)
+                    allRoutes.append(currentRoute)
+                    
+                    if newPoint == endPoint {
+                                            touchDown = true
+                                        }
+                    visitedPoints.append(newPoint)
+                }
+            }
+        }
+        
+        // west
+        if currentPoint.x - 1 >= 0 {
+            let indexes = findIndexOfPoint(x: currentPoint.x - 1, y: currentPoint.y)
+            let newPoint = Point(x: currentPoint.x - 1, y: currentPoint.y, height: terrain[indexes.first][indexes.second])
+            // check if point was visited before
+            if visitedPoints.contains(newPoint) == false  {
+                // check if allowed step
+                let diff = currentPoint.height - newPoint.height
+                if ( diff >= -1 && diff < 30 ) || diff == 52 || diff == 53  {
+                    var currentRoute = route
+                    currentRoute.append(newPoint)
+                    allRoutes.append(currentRoute)
+                    
+                    if newPoint == endPoint {
+                                            touchDown = true
+                                        }
+                    visitedPoints.append(newPoint)
+                }
+            }
+        }
+        
+        // remove all routes that didn't find a new point
+        allRoutes.removeAll(where: { $0 == route })
+        
+    }
+    
+}
+
+
+
+let allRoutesCount = allRoutes.map( { $0.count })
+
+print(allRoutesCount)
+
+print(allRoutesCount.first! - 1)
+
+
+
