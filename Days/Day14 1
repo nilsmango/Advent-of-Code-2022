@@ -1,0 +1,138 @@
+import Foundation
+
+let sample = """
+498,4 -> 498,6 -> 496,6
+503,4 -> 502,4 -> 502,9 -> 494,9
+"""
+
+let input = load(file: "input14")
+
+let codeInput = input!
+//let codeInput = sample
+
+struct Point: Equatable {
+    var x: Int
+    var y: Int
+}
+
+
+// there's no difference between stone and sand lying there.
+
+var matterMatrix = [Point]()
+
+// 1. add all the stone points (stat to end of each line) to the matrix.
+
+let lines = codeInput.components(separatedBy: .newlines)
+
+for line in lines {
+    let coordinatesArr = line.components(separatedBy: " -> ")
+    
+    for (i, coordinates) in coordinatesArr.enumerated() {
+        let split = coordinates.components(separatedBy: ",")
+        let x = Int(split.first!)!
+        let y = Int(split.last!)!
+        
+        let newPoint = Point(x: x, y: y)
+        // check if not first of coordinatesArr
+        if i != 0 {
+            // check last point in matterMatrix
+            let lastPoint = matterMatrix.last!
+            
+            let diffx = lastPoint.x - newPoint.x
+            
+            let diffy = newPoint.y - lastPoint.y
+            
+            // last = 5 new = 2 means diff 3 
+            if diffx != 0 {
+                if diffx > 0 {
+                    for point in 1..<diffx {
+                                        let inbetweenPoint = Point(x: lastPoint.x - point, y: lastPoint.y)
+                                        matterMatrix.append(inbetweenPoint)
+                                    }
+                } else {
+                    let absDiffx = abs(diffx)
+                    for point in 1..<absDiffx {
+                                        let inbetweenPoint = Point(x: lastPoint.x + point, y: lastPoint.y)
+                                        matterMatrix.append(inbetweenPoint)
+                                    }
+                }
+                
+                
+            // last 4 new 9 diff 5
+            } else if diffy != 0 {
+                if diffy > 0 {
+                    for point in 1..<diffy {
+                                        let inbetweenPoint = Point(x: lastPoint.x, y: lastPoint.y + point)
+                                        matterMatrix.append(inbetweenPoint)
+                                    }
+                    
+                } else {
+                    let absDiffy = abs(diffy)
+                    for point in 1..<absDiffy {
+                                                            let inbetweenPoint = Point(x: lastPoint.x, y: lastPoint.y - point)
+                                                            matterMatrix.append(inbetweenPoint)
+                                                        }
+                    
+                    
+                }
+                
+                
+            }
+            
+        }
+        
+        matterMatrix.append(newPoint)
+    }
+    
+}
+
+
+//print(matterMatrix)
+
+
+
+
+
+let biggestYOfPoints = matterMatrix.max(by: { $0.y < $1.y })?.y
+
+print(biggestYOfPoints)
+
+var currentPoint = Point(x: 500, y: 0)
+
+var count = 0
+
+// end if sand falls for ever y > biggest Point.y in matterMatrix.
+while currentPoint.y < biggestYOfPoints! {
+    // 2. let one unit of sand fall (y +1) until it finds a point at y +1 so it tries as a loop:
+    var destinationPoint = Point(x: currentPoint.x, y: currentPoint.y + 1)
+    
+    if matterMatrix.contains(destinationPoint) == false {
+        currentPoint = destinationPoint
+        
+    } else {
+        // try left side
+        destinationPoint = Point(x: currentPoint.x - 1, y: currentPoint.y + 1)
+        
+        if matterMatrix.contains(destinationPoint) == false {
+            currentPoint = destinationPoint
+            
+        } else {
+            // try right side
+            destinationPoint = Point(x: currentPoint.x + 1, y: currentPoint.y + 1)
+            
+            if matterMatrix.contains(destinationPoint) == false {
+                currentPoint = destinationPoint
+                
+            } else {
+                // stay where you are (count +1)
+                matterMatrix.append(currentPoint)
+                currentPoint = Point(x: 500, y: 0)
+                count += 1
+            }
+        }
+    }
+}
+
+
+print(count)
+
