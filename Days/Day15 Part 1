@@ -1,0 +1,164 @@
+import Foundation
+
+let sample = """
+    Sensor at x=2, y=18: closest beacon is at x=-2, y=15
+    Sensor at x=9, y=16: closest beacon is at x=10, y=16
+    Sensor at x=13, y=2: closest beacon is at x=15, y=3
+    Sensor at x=12, y=14: closest beacon is at x=10, y=16
+    Sensor at x=10, y=20: closest beacon is at x=10, y=16
+    Sensor at x=14, y=17: closest beacon is at x=10, y=16
+    Sensor at x=8, y=7: closest beacon is at x=2, y=10
+    Sensor at x=2, y=0: closest beacon is at x=2, y=10
+    Sensor at x=0, y=11: closest beacon is at x=2, y=10
+    Sensor at x=20, y=14: closest beacon is at x=25, y=17
+    Sensor at x=17, y=20: closest beacon is at x=21, y=22
+    Sensor at x=16, y=7: closest beacon is at x=15, y=3
+    Sensor at x=14, y=3: closest beacon is at x=15, y=3
+    Sensor at x=20, y=1: closest beacon is at x=15, y=3
+    """
+
+let rawInput = load(file: "input15")
+// parse the pairs
+
+// make a square of each pair
+// get points for the whole square
+// check all the points for a given y
+
+
+
+let input = rawInput!
+let yToSearch = 2000000
+
+let lines = input.components(separatedBy: .newlines)
+
+struct Point: Equatable {
+    let x: Int
+    let y: Int
+}
+
+struct Pairs {
+    let sensor: Point
+    let beacon: Point
+}
+
+
+var pairs = [Pairs]()
+
+
+for line in lines {
+    if line == "" {
+        break
+    }
+    let comp = line.components(separatedBy: " ")
+    var sX = comp[2].split(separator: "=").last!
+    sX = sX.dropLast()
+    
+    var sY = comp[3].split(separator: "=").last!
+    sY = sY.dropLast()
+    
+    var bX = comp[8].split(separator: "=").last!
+    bX = bX.dropLast()
+    
+    let bY = comp[9].split(separator: "=").last!
+    
+    pairs.append(Pairs(sensor: Point(x: Int(sX)!, y: Int(sY)!), beacon: Point(x: Int(bX)!, y: Int(bY)!)))
+}
+
+
+
+// count to the beacon to find distance.
+
+func findDistance(pair: Pairs) -> Int {
+    let xDist = pair.sensor.x - pair.beacon.x
+    let yDist = pair.sensor.y - pair.beacon.y
+    
+    let distance = abs(xDist) + abs(yDist)
+    
+    return distance
+}
+
+
+struct Range: Equatable {
+    var min: Int
+    var max: Int
+}
+
+
+// make array of beacons AND SENDER at yToSearch
+var beaconsAtY = [Point]()
+
+var cannotContain = [Range]()
+// find the points at the row
+
+for pair in pairs {
+    let distance = findDistance(pair: pair)
+    let range = (pair.sensor.y - distance)...(pair.sensor.y + distance)
+    
+    if range.contains(yToSearch) {
+        // calculate all points
+        let yDistance = yToSearch - pair.sensor.y
+        
+        let y = yToSearch
+        
+        let xDistance = distance - abs(yDistance)
+        
+        let xMin = pair.sensor.x - xDistance
+        let xMax = pair.sensor.x + xDistance
+        
+        cannotContain.append(Range(min: xMin, max: xMax))
+        
+    }
+}
+
+
+// 1. find gaps and make 2 arrays
+    // search max, and see if new min is bigger, there's the gap
+// 2. find max max and min min of all arrays in array
+// calculate counts.
+
+
+cannotContain.sort(by: { $0.min < $1.min })
+
+var maxMax = Int()
+var currentPart = [Range]()
+var arrOfParts = [[Range]]()
+
+for (i, range) in cannotContain.enumerated() {
+    currentPart.append(range)
+    if i == cannotContain.endIndex - 1 {
+        arrOfParts.append(currentPart)
+        break
+    }
+    
+    let nextMin = cannotContain[i + 1].min
+    let thisMax = range.max
+    
+    if thisMax > maxMax {
+        maxMax = thisMax
+    }
+
+    // check if there's a gap
+    if nextMin > maxMax {
+        arrOfParts.append(currentPart)
+        currentPart = []
+    }
+}
+
+
+
+print(arrOfParts)
+
+var countArr = [Int]()
+
+for arr in arrOfParts {
+    let min = arr.min(by: { $0.min < $1.min })!.min
+    let max = arr.max(by: { $0.max < $1.max })!.max
+    
+    let count = max - min
+    countArr.append(count)
+}
+
+
+let result01 = countArr.reduce(0, +)
+// part01
+print(result01)
